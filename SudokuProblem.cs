@@ -12,6 +12,7 @@ namespace Sudoku
         public string Name;
         public string[] problemArr = new string[81];
         public string[] answersArr = new string[81];
+        internal List<Square> Squares = new List<Square>();
         public SudokuProblem(List<string> Lines, int position)
         {
             Name = "Problem" + position;
@@ -23,6 +24,35 @@ namespace Sudoku
                     problemArr[indx] = digit.ToString();
                     indx++;
                 }
+            }
+
+            InitalizeSquares();
+        }
+
+        public void InitalizeSquares()
+        {
+            answersArr = problemArr;
+            int indx = 0;
+            foreach (string square in answersArr)
+            {
+                if (square != "0")
+                {
+                    Squares.Add(new Square(arrayPosition: indx, 
+                        value: square));
+                }
+                else
+                {
+                    List<string> legalValues = new List<string>()
+                    { "1", "2", "3", "4", "5", "6", "7", "8", "9" };
+                    Squares.Add(new Square(arrayPosition: indx, 
+                        legalValues: legalValues));
+                }
+                indx++;
+            }
+
+            foreach (Square square in Squares)
+            {
+                square.Init(this);
             }
         }
     }

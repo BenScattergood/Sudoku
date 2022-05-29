@@ -726,7 +726,7 @@
             this.button67.FlatAppearance.BorderColor = System.Drawing.Color.DarkOliveGreen;
             this.button67.FlatAppearance.BorderSize = 2;
             this.button67.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.button67.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.button67.Font = new System.Drawing.Font("Microsoft Sans Serif", 15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.button67.ForeColor = System.Drawing.SystemColors.ControlText;
             this.button67.Location = new System.Drawing.Point(187, 149);
             this.button67.Margin = new System.Windows.Forms.Padding(5);
@@ -1617,6 +1617,8 @@
             this.Controls.Add(this.button84);
             this.Controls.Add(this.button83);
             this.Controls.Add(this.panel1);
+            this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.Fixed3D;
+            this.MaximizeBox = false;
             this.Name = "Sudoku";
             this.Text = "Sudoku";
             this.panel1.ResumeLayout(false);
