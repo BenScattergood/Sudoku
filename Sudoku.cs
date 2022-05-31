@@ -14,13 +14,15 @@ namespace Sudoku
     {
         string numberSelected = "";
         bool EraserSelected = false;
-        static List<SudokuProblem> SudokuProblems = new List<SudokuProblem>();
+        bool CheatSelected = false;
+        public static List<SudokuProblem> SudokuProblems = new List<SudokuProblem>();
 
         public Sudoku()
         {
             InitializeComponent();
             CreateSudokuProblems();
             PopulateSudokuTable();
+            //EulerSolution();
         }
 
         public void PopulateSudokuTable()
@@ -49,7 +51,7 @@ namespace Sudoku
             }
         }
 
-        public void CreateSudokuProblems()
+        public static void CreateSudokuProblems()
         {
             List<string> cLines = System.IO.File.ReadAllLines
                 (@"C:\Users\Ben\Desktop\C#\euler\euler96.txt").ToList();
@@ -75,12 +77,9 @@ namespace Sudoku
 
         private void NumberSelect_Click(object sender, EventArgs e)
         {
+            ResetInputs();
             Button button = (Button)sender;
             numberSelected = button.Text;
-            if (radioButton1.Checked)
-            {
-                radioButton1_Click(sender, e);
-            }   
         }
 
         private void Square_Click(object sender, EventArgs e)
@@ -93,6 +92,14 @@ namespace Sudoku
             if (EraserSelected)
             {
                 button.Text = "";
+            }
+            else if (CheatSelected)
+            {
+                string name = button.Name;
+                name = name.Remove(0, 2);
+                int position = int.Parse(name);
+                button.Text = SudokuProblems[int.Parse
+                    ((numericUpDown1.Value - 1).ToString())].answersArr[position];
             }
             if (numberSelected == "")
             {
@@ -119,18 +126,23 @@ namespace Sudoku
                 numericUpDown1.Value = 50;
             }
             PopulateSudokuTable();
+            ResetInputs();
         }
 
-        private void radioButton1_Click(object sender, EventArgs e)
+        private void erase_Click(object sender, EventArgs e)
         {
-            if (radioButton1.Checked && EraserSelected)
+            if (CheatSelected)
             {
-                radioButton1.Checked = false;
+                return;
+            }
+            if (erase.Checked && EraserSelected)
+            {
+                erase.Checked = false;
                 EraserSelected = false;
             }
             else
             {
-                radioButton1.Checked = true;
+                erase.Checked = true;
                 EraserSelected = true;
             }
         }
@@ -138,6 +150,51 @@ namespace Sudoku
         private void Restart_Click(object sender, EventArgs e)
         {
             PopulateSudokuTable();
+            ResetInputs();
+        }
+
+        private void cheat_Click(object sender, EventArgs e)
+        {
+            if (EraserSelected)
+            {
+                return;
+            }
+            if (cheat.Checked && CheatSelected)
+            {
+                cheat.Checked = false;
+                CheatSelected = false;
+            }
+            else
+            {
+                cheat.Checked = true;
+                CheatSelected = true;
+            }
+        }
+
+        private void ResetInputs()
+        {
+            erase.Checked = false;
+            cheat.Checked = false;
+            numberSelected = "";
+            EraserSelected = false;
+            CheatSelected = false;
+        }
+
+        private void EulerSolution()
+        {
+            int indx = 0;
+            long temp2 = 0;
+            foreach (var puzzle in SudokuProblems)
+            {
+                string temp = null;
+                for (int i = 0; i < 3; i++)
+                {
+                    temp += SudokuProblems[indx].answersArr[i];
+                }
+                temp2 += long.Parse(temp);
+                indx++;
+            }
+            Console.WriteLine();
         }
     }
 }

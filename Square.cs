@@ -6,16 +6,17 @@ using System.Threading.Tasks;
 
 namespace Sudoku
 {
-    internal class Square
+    public class Square
     {
-        public List<string> LegalValues = new List<string>();
-        public string Value;
+        public List<int> LegalValues = new List<int>();
+        public List<int> removedValues = new List<int>();
+        public int Value;
         public double arrayPosition;
 
-        public Square(int arrayPosition, List<string> legalValues = null,
-            string value = null)
+        public Square(int arrayPosition, List<int> legalValues = null,
+            int value = 0)
         {
-            if (value != null)
+            if (value != 0)
             {
                 Value = value;
             }
@@ -23,50 +24,116 @@ namespace Sudoku
             {
                 this.LegalValues = legalValues;
             }
+            this.arrayPosition = arrayPosition;
         }
 
-        public void Init(SudokuProblem currentSudoku)
+        public void ReturnSquaresInBox(out List<int> squaresInBox)
         {
-            RemoveIllegalValues_PerRow(currentSudoku);
+            squaresInBox = new List<int>();
+            double row = ReturnRow();
+            double column = ReturnColumn();
+            double start = arrayPosition - ((row % 3) * 9);
+            start = start - (column % 3);
+            int temp = int.Parse(start.ToString());
+            squaresInBox.Add(temp);
+            squaresInBox.Add(temp+1);
+            squaresInBox.Add(temp+2);
+            squaresInBox.Add(temp+9);
+            squaresInBox.Add(temp+10);
+            squaresInBox.Add(temp + 11);
+            squaresInBox.Add(temp+18);
+            squaresInBox.Add(temp+19);
+            squaresInBox.Add(temp+20);
+            int position = int.Parse(arrayPosition.ToString());
+            if (squaresInBox.Contains(position))
+            {
+                squaresInBox.Remove(position);
+            }
         }
-        private void RemoveIllegalValues_PerRow(SudokuProblem currentSudoku)
+        public void ReturnSquaresInRow(out List<int> squaresInRow)
         {
-            double temp = arrayPosition / 9;
-            double row = Math.Floor(temp);
-            int start = int.Parse((9 * row).ToString());
-            int increment = 1;
+            squaresInRow = new List<int>();
+            int start = ReturnRow() * 9;
             int end = start + 9;
-            RemoveIllegalValues(start, end, increment, currentSudoku);
-        }
-        private void RemoveIllegalValues_PerColumn(SudokuProblem currentSudoku)
-        {
-            double temp = arrayPosition / 9;
-            double row = Math.Floor(temp);
-            int start = int.Parse((arrayPosition - (9 * row)).ToString());
-            int finish = 81;
-            int increment = 9;
-            RemoveIllegalValues(start, finish, increment, currentSudoku);
-        }
-
-        private void RemoveIllegalValues_PerBox()
-        {
-            //return a list of all affected square numbers, and then iterate over.
-            //this can be resused later;
-        }
-        private void RemoveIllegalValues(int start, int end, int increment,
-            SudokuProblem currentSudoku)
-        {
-            for (int i = start; i < end; i+=increment)
+            for (int i = start; i < end; i++)
             {
                 if (i == arrayPosition)
                 {
                     continue;
                 }
+                squaresInRow.Add(i);
+            }
+        }
+        public void ReturnSquaresInColumn(out List<int> squaresInColumn)
+        {
+            squaresInColumn = new List<int>();
+            int start = ReturnColumn();
+            int finish = 81;
+            int increment = 9;
+            for (int i = start; i < finish; i+=increment)
+            {
+                if (i == arrayPosition)
+                {
+                    continue;
+                }
+                squaresInColumn.Add(i);
+            }
+        }
+        public int ReturnColumn()
+        {
+            double row = ReturnRow();
+            int column = int.Parse((arrayPosition - (9 * row)).ToString());
+            return column;
+        }
+        public int ReturnRow()
+        {
+            double temp = arrayPosition / 9;
+            int row = int.Parse(Math.Floor(temp).ToString());
+            return row;
+        }
+        public void RemoveIllegalValues(SudokuProblem currentSudoku)
+        {
+            var adjacentSquares = ReturnAdjacentSquares();
+            foreach (int i in adjacentSquares)
+            {
                 if (LegalValues.Contains(currentSudoku.Squares[i].Value))
                 {
                     LegalValues.Remove(currentSudoku.Squares[i].Value);
                 }
             }
+        }
+        public List<int> ReturnAdjacentSquares()
+        {
+            ReturnSquaresInBox(out List<int> squaresInBox);
+            ReturnSquaresInColumn(out List<int> squaresInColumn);
+            ReturnSquaresInRow(out List<int> squaresInRow);
+            List<int> adjacentSquares = new List<int>();
+            adjacentSquares.AddRange(squaresInBox);
+            adjacentSquares.AddRange(squaresInColumn);
+            adjacentSquares.AddRange(squaresInRow);
+            adjacentSquares = adjacentSquares.Distinct().ToList();
+            adjacentSquares.Sort();
+            return adjacentSquares;
+        }
+        public List<int> MergeLegalAndRemovedValues(int currentValue = 0)
+        {
+            List<int> mergedValues = new List<int>();
+            foreach (var item in LegalValues)
+            {
+                if (removedValues.Contains(item))
+                {
+                    continue;
+                }
+                else
+                {
+                    mergedValues.Add(item);
+                }
+            }
+            if (mergedValues.Contains(currentValue))
+            {
+                mergedValues.Remove(currentValue);
+            }
+            return mergedValues;
         }
     }
 }
