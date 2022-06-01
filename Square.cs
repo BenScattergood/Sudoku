@@ -30,8 +30,8 @@ namespace Sudoku
         public void ReturnSquaresInBox(out List<int> squaresInBox)
         {
             squaresInBox = new List<int>();
-            double row = ReturnRow();
-            double column = ReturnColumn();
+            double row = ReturnRow(arrayPosition);
+            double column = ReturnColumn(arrayPosition);
             double start = arrayPosition - ((row % 3) * 9);
             start = start - (column % 3);
             int temp = int.Parse(start.ToString());
@@ -53,7 +53,7 @@ namespace Sudoku
         public void ReturnSquaresInRow(out List<int> squaresInRow)
         {
             squaresInRow = new List<int>();
-            int start = ReturnRow() * 9;
+            int start = ReturnRow(arrayPosition) * 9;
             int end = start + 9;
             for (int i = start; i < end; i++)
             {
@@ -67,7 +67,7 @@ namespace Sudoku
         public void ReturnSquaresInColumn(out List<int> squaresInColumn)
         {
             squaresInColumn = new List<int>();
-            int start = ReturnColumn();
+            int start = ReturnColumn(arrayPosition);
             int finish = 81;
             int increment = 9;
             for (int i = start; i < finish; i+=increment)
@@ -79,13 +79,13 @@ namespace Sudoku
                 squaresInColumn.Add(i);
             }
         }
-        public int ReturnColumn()
+        public static int ReturnColumn(double arrayPosition)
         {
-            double row = ReturnRow();
+            double row = ReturnRow(arrayPosition);
             int column = int.Parse((arrayPosition - (9 * row)).ToString());
             return column;
         }
-        public int ReturnRow()
+        public static int ReturnRow(double arrayPosition)
         {
             double temp = arrayPosition / 9;
             int row = int.Parse(Math.Floor(temp).ToString());

@@ -27,16 +27,22 @@ namespace Sudoku
 
         public void PopulateSudokuTable()
         {
-            foreach (Button button in panel1.Controls)
+            for (int i = 0; i < 81; i++)
             {
+                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
+                    Square.ReturnRow(i));
+                Button button = (Button)control;
                 button.Text = "";
                 button.Font = new Font(button.Font, FontStyle.Regular);
             }
+
             int position = int.Parse((numericUpDown1.Value - 1).ToString());
-            int indx = 80;
-            foreach (Button button in panel1.Controls)
+            for (int i = 0; i < 81; i++)
             {
-                string squareValue = SudokuProblems[position].problemArr[indx];
+                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
+                    Square.ReturnRow(i));
+                Button button = (Button)control;
+                string squareValue = SudokuProblems[position].problemArr[i];
                 if (squareValue != "0")
                 {
                     button.Text = squareValue;
@@ -46,8 +52,6 @@ namespace Sudoku
                 {
                     button.Text = "";
                 }
-                
-                indx--;
             }
         }
 
@@ -95,11 +99,10 @@ namespace Sudoku
             }
             else if (CheatSelected)
             {
-                string name = button.Name;
-                name = name.Remove(0, 2);
-                int position = int.Parse(name);
+                var position = tableLayoutPanel.GetPositionFromControl(button);
+                int positionLookup = position.Column + (position.Row * 9);
                 button.Text = SudokuProblems[int.Parse
-                    ((numericUpDown1.Value - 1).ToString())].answersArr[position];
+                    ((numericUpDown1.Value - 1).ToString())].answersArr[positionLookup];
             }
             if (numberSelected == "")
             {
@@ -108,7 +111,7 @@ namespace Sudoku
             
             button.Text = numberSelected;
             numberSelected = "";
-            foreach (Button item in panel1.Controls)
+            foreach (Button item in tableLayoutPanel.Controls)
             {
                 string name = item.Name;
                 string temp = item.Text;
@@ -133,7 +136,8 @@ namespace Sudoku
         {
             if (CheatSelected)
             {
-                return;
+                cheat.Checked = false;
+                CheatSelected = false;
             }
             if (erase.Checked && EraserSelected)
             {
@@ -149,6 +153,8 @@ namespace Sudoku
 
         private void Restart_Click(object sender, EventArgs e)
         {
+            //add message box form
+
             PopulateSudokuTable();
             ResetInputs();
         }
@@ -157,7 +163,8 @@ namespace Sudoku
         {
             if (EraserSelected)
             {
-                return;
+                erase.Checked = false;
+                EraserSelected = false;
             }
             if (cheat.Checked && CheatSelected)
             {
@@ -195,6 +202,33 @@ namespace Sudoku
                 indx++;
             }
             Console.WriteLine();
+        }
+
+        private void btn_check_Click(object sender, EventArgs e)
+        {
+            if (isCorrectSolution())
+            {
+                MessageBox.Show("Congratulations! That is the correct solution!");
+            }
+            else
+            {
+                MessageBox.Show("That is not the correct solution");
+            }
+        }
+        private bool isCorrectSolution()
+        {
+            for (int i = 0; i < 81; i++)
+            {
+                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
+                    Square.ReturnRow(i));
+                Button button = (Button)control;
+                if (button.Text != SudokuProblems[int.Parse
+                    ((numericUpDown1.Value - 1).ToString())].answersArr[i])
+                {
+                    return false;
+                }
+            }
+            return true;
         }
     }
 }
