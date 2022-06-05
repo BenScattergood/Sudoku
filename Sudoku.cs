@@ -21,37 +21,47 @@ namespace Sudoku
         {
             InitializeComponent();
             CreateSudokuProblems();
-            PopulateSudokuTable();
+            PopulateSudokuTable(false);
             //EulerSolution();
+            
         }
 
-        public void PopulateSudokuTable()
+        public void PopulateSudokuTable(bool restore)
         {
-            for (int i = 0; i < 81; i++)
-            {
-                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
-                    Square.ReturnRow(i));
-                Button button = (Button)control;
-                button.Text = "";
-                button.Font = new Font(button.Font, FontStyle.Regular);
-            }
-
             int position = int.Parse((numericUpDown1.Value - 1).ToString());
-            for (int i = 0; i < 81; i++)
+            int i = 0;
+            string[] myArr = new string[81];
+            if (restore == true)
             {
-                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
-                    Square.ReturnRow(i));
-                Button button = (Button)control;
-                string squareValue = SudokuProblems[position].problemArr[i];
+                myArr = (string[])SudokuProblems[position].usersInputArr.Clone();
+            }
+            else
+            {
+                myArr = (string[])SudokuProblems[position].problemArr.Clone();
+            }
+            
+            foreach (Button button in ReturnListOfButtons())
+            {
+                string squareValue = myArr[i];
+                
                 if (squareValue != "0")
                 {
                     button.Text = squareValue;
-                    button.Font = new Font(button.Font, FontStyle.Bold);
+                    if (SudokuProblems[position].problemArr[i] == myArr[i])
+                    {
+                        button.Font = new Font(button.Font, FontStyle.Bold);
+                    }
+                    else
+                    {
+                        button.Font = new Font(button.Font, FontStyle.Regular);
+                    }   
                 }
                 else
                 {
                     button.Text = "";
+                    button.Font = new Font(button.Font, FontStyle.Regular);
                 }
+                i++;
             }
         }
 
@@ -93,29 +103,27 @@ namespace Sudoku
             {
                 return;
             }
+            var position = tableLayoutPanel.GetPositionFromControl(button);
+            int positionLookup = position.Column + (position.Row * 9);
+
             if (EraserSelected)
             {
                 button.Text = "";
             }
             else if (CheatSelected)
             {
-                var position = tableLayoutPanel.GetPositionFromControl(button);
-                int positionLookup = position.Column + (position.Row * 9);
                 button.Text = SudokuProblems[int.Parse
                     ((numericUpDown1.Value - 1).ToString())].answersArr[positionLookup];
             }
-            if (numberSelected == "")
+            else if (numberSelected != "")
             {
-                return;
+                button.Text = numberSelected;
+                numberSelected = "";
             }
             
-            button.Text = numberSelected;
-            numberSelected = "";
-            foreach (Button item in tableLayoutPanel.Controls)
-            {
-                string name = item.Name;
-                string temp = item.Text;
-            }
+            
+            SudokuProblems[int.Parse((numericUpDown1.Value - 1).ToString())].usersInputArr
+                [positionLookup] = button.Text;
         }
 
         private void numericUpDown1_ValueChanged(object sender, EventArgs e)
@@ -128,7 +136,8 @@ namespace Sudoku
             {
                 numericUpDown1.Value = 50;
             }
-            PopulateSudokuTable();
+            //save state
+            PopulateSudokuTable(true);
             ResetInputs();
         }
 
@@ -154,8 +163,11 @@ namespace Sudoku
         private void Restart_Click(object sender, EventArgs e)
         {
             //add message box form
-
-            PopulateSudokuTable();
+            EraserSelected = true;
+            foreach (Button button in ReturnListOfButtons())
+            {
+                Square_Click(button, e);
+            }
             ResetInputs();
         }
 
@@ -217,18 +229,60 @@ namespace Sudoku
         }
         private bool isCorrectSolution()
         {
-            for (int i = 0; i < 81; i++)
+            List<Button> buttons = ReturnListOfButtons();
+            int i = 0;
+            foreach (Button button in buttons)
             {
-                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
-                    Square.ReturnRow(i));
-                Button button = (Button)control;
                 if (button.Text != SudokuProblems[int.Parse
                     ((numericUpDown1.Value - 1).ToString())].answersArr[i])
                 {
                     return false;
                 }
+                i++;
             }
             return true;
+        }
+        private List<Button> ReturnListOfButtons()
+        {
+            List<Button> buttons = new List<Button>();
+            for (int i = 0; i < 81; i++)
+            {
+                var control = tableLayoutPanel.GetControlFromPosition(Square.ReturnColumn(i),
+                    Square.ReturnRow(i));
+                Button button = (Button)control;
+                buttons.Add(button);
+            }
+            return buttons;
+        }
+
+        private void tableLayoutPanel_Paint(object sender, PaintEventArgs e)
+        {
+            Graphics gr = tableLayoutPanel.CreateGraphics();
+            Pen myPen = new Pen(Brushes.DarkOliveGreen, 5);
+
+            int lines = tableLayoutPanel.ColumnCount;
+            float Xx = 0f;
+            float Xy = 0f;
+            float Xincrement = tableLayoutPanel.Width / lines;
+            float Yx = 0f;
+            float Yy = 0f;
+            float Yincrement = tableLayoutPanel.Height / lines;
+
+            for (int i = 0; i <= lines; i++)
+            {
+                if (i % 3 == 0)
+                {
+                    myPen = new Pen(Brushes.DarkOliveGreen, 5);
+                }
+                else
+                {
+                    myPen = new Pen(Brushes.DarkOliveGreen, 2);
+                }
+                gr.DrawLine(myPen, Xx, Xy, Xx, tableLayoutPanel.Height);
+                gr.DrawLine(myPen, Yx, Yy, tableLayoutPanel.Width, Yy);
+                Xx += Xincrement;
+                Yy += Yincrement;
+            }
         }
     }
 }

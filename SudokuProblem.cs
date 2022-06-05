@@ -12,6 +12,7 @@ namespace Sudoku
         public string Name;
         public string[] problemArr = new string[81];
         public string[] answersArr = new string[81];
+        public string[] usersInputArr = new string[81];
         public List<Square> Squares = new List<Square>();
         public SudokuProblem(List<string> Lines, int position)
         {
@@ -22,6 +23,7 @@ namespace Sudoku
                 foreach (var digit in line)
                 {
                     problemArr[indx] = digit.ToString();
+                    usersInputArr[indx] = digit.ToString();
                     indx++;
                 }
             }
